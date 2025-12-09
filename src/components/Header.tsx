@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,11 +18,12 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { href: "#hero", label: "Beranda" },
-    { href: "#about", label: "Tentang" },
-    { href: "#visi-misi", label: "Visi & Misi" },
-    { href: "#values", label: "Nilai" },
-    { href: "#contact", label: "Kontak" },
+    { href: isHomePage ? "#hero" : "/", label: "Beranda", isAnchor: isHomePage },
+    { href: isHomePage ? "#about" : "/#about", label: "Tentang", isAnchor: isHomePage },
+    { href: isHomePage ? "#visi-misi" : "/#visi-misi", label: "Visi & Misi", isAnchor: isHomePage },
+    { href: isHomePage ? "#values" : "/#values", label: "Nilai", isAnchor: isHomePage },
+    { href: "/news", label: "Berita", isAnchor: false },
+    { href: isHomePage ? "#contact" : "/#contact", label: "Kontak", isAnchor: isHomePage },
   ];
 
   return (
@@ -32,47 +36,61 @@ const Header = () => {
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <a href="#hero" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-lg">M</span>
           </div>
           <span
             className={cn(
               "font-heading font-bold text-lg transition-colors duration-300",
-              isScrolled ? "text-foreground" : "text-primary-foreground"
+              isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"
             )}
           >
             PT. MMS
           </span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "font-medium transition-colors duration-300 hover:text-primary",
-                isScrolled ? "text-foreground" : "text-primary-foreground"
-              )}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.isAnchor ? (
+              <a
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "font-medium transition-colors duration-300 hover:text-primary",
+                  isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"
+                )}
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={cn(
+                  "font-medium transition-colors duration-300 hover:text-primary",
+                  isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground",
+                  location.pathname === link.href && "text-primary"
+                )}
+              >
+                {link.label}
+              </Link>
+            )
+          )}
         </nav>
 
-        <a
-          href="#about"
+        <Link
+          to="/"
           className={cn(
             "hidden md:inline-flex px-6 py-2 rounded-full font-semibold transition-all duration-300",
-            isScrolled
+            isScrolled || !isHomePage
               ? "bg-primary text-primary-foreground hover:opacity-90"
               : "bg-primary-foreground/20 text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/30"
           )}
         >
           Halaman Utama
-        </a>
+        </Link>
 
         {/* Mobile Menu Button */}
         <button
@@ -80,9 +98,9 @@ const Header = () => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (
-            <X className={isScrolled ? "text-foreground" : "text-primary-foreground"} />
+            <X className={isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"} />
           ) : (
-            <Menu className={isScrolled ? "text-foreground" : "text-primary-foreground"} />
+            <Menu className={isScrolled || !isHomePage ? "text-foreground" : "text-primary-foreground"} />
           )}
         </button>
       </div>
@@ -91,16 +109,30 @@ const Header = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-card/95 backdrop-blur-md border-t border-border">
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-foreground font-medium py-2 hover:text-primary transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              link.isAnchor ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-foreground font-medium py-2 hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={cn(
+                    "text-foreground font-medium py-2 hover:text-primary transition-colors",
+                    location.pathname === link.href && "text-primary"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </nav>
         </div>
       )}
