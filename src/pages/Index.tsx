@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
 import VisiMisiSection from "@/components/VisiMisiSection";
 import ValuesSection from "@/components/ValuesSection";
+import NewsPreviewSection from "@/components/NewsPreviewSection";
 import Footer from "@/components/Footer";
 import { useEffect } from "react";
 
@@ -19,6 +20,7 @@ const Index = () => {
         <AboutSection />
         <VisiMisiSection />
         <ValuesSection />
+        <NewsPreviewSection />
       </main>
       <Footer />
     </div>
