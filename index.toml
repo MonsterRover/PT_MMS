@@ -1,0 +1,10 @@
+[build]
+  base = "PT_MMS"               
+  publish = "PT_MMS"             
+  command = "npm run build" 
+
+[[redirects]]
+  from = "/"
+  to = "/PT_MMS/index.html"
+  status = 200
+  force = true
