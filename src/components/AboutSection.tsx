@@ -44,12 +44,12 @@ const AboutSection = () => {
             </span>
 
             <h2 className="section-title text-foreground">
-              PT. Mitra Mutiara
+              PT. Mitra Muratara
               <span className="text-gradient block">Sejahtera</span>
             </h2>
 
             <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-              PT. Mitra Mutiara Sejahtera adalah perusahaan agrobisnis yang bergerak 
+              PT. Mitra Muratara Sejahtera adalah perusahaan agrobisnis yang bergerak 
               dalam industri kelapa sawit. Kami berkomitmen untuk mengembangkan 
               potensi daerah dan menciptakan pertumbuhan berkelanjutan bersama masyarakat.
             </p>

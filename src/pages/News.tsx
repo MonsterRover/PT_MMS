@@ -25,7 +25,7 @@ const News = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Berita & Artikel | PT. Mitra Mutiara Sejahtera";
+    document.title = "Berita & Artikel | PT. Mitra Muratara Sejahtera";
     fetchNews();
   }, []);
 
@@ -77,7 +77,7 @@ const News = () => {
               Berita & <span className="text-primary">Artikel</span>
             </h1>
             <p className="text-lg text-muted-foreground">
-              Ikuti perkembangan terbaru dari PT. Mitra Mutiara Sejahtera dan industri kelapa sawit
+              Ikuti perkembangan terbaru dari PT. Mitra Muratara Sejahtera dan industri kelapa sawit
             </p>
           </div>
         </div>

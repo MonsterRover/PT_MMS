@@ -9,7 +9,7 @@ import { useEffect } from "react";
 
 const Index = () => {
   useEffect(() => {
-    document.title = "PT. Mitra Mutiara Sejahtera - Perusahaan Agrobisnis Kelapa Sawit";
+    document.title = "PT. Mitra Muratara Sejahtera - Perusahaan Agrobisnis Kelapa Sawit";
   }, []);
 
   return (

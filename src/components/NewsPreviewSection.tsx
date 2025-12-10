@@ -88,7 +88,7 @@ const NewsPreviewSection = () => {
             Berita & <span className="text-primary">Artikel</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Ikuti perkembangan terbaru dari PT. Mitra Mutiara Sejahtera
+            Ikuti perkembangan terbaru dari PT. Mitra Muratara Sejahtera
           </p>
         </div>
 

@@ -56,7 +56,7 @@ const NewsDetail = () => {
       console.error("Error fetching article:", error);
     } else if (data) {
       setArticle(data);
-      document.title = `${data.title} | PT. Mitra Mutiara Sejahtera`;
+      document.title = `${data.title} | PT. Mitra Muratara Sejahtera`;
       fetchRelatedNews(data.category, data.id);
     }
     setLoading(false);

@@ -73,7 +73,7 @@ const Contact = () => {
               Karir & Recruitment
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Bergabunglah dengan tim PT. Mitra Mutiara Sejahtera. Kami selalu mencari talenta terbaik 
+              Bergabunglah dengan tim PT. Mitra Muratara Sejahtera. Kami selalu mencari talenta terbaik 
               untuk berkontribusi dalam pembangunan industri kelapa sawit berkelanjutan di Indonesia.
             </p>
           </div>

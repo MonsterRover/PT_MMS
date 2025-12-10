@@ -17,7 +17,7 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="font-heading font-bold text-xl text-primary-foreground">
-                  PT. Mitra Mutiara Sejahtera
+                  PT. Mitra Muratara Sejahtera
                 </h3>
               </div>
             </div>
@@ -102,7 +102,7 @@ const Footer = () => {
         <div className="border-t border-border/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-muted-foreground text-sm text-center md:text-left">
-              © 2025 <span className="text-primary font-semibold">PT. Mitra Mutiara Sejahtera</span>. All rights reserved.
+              © 2025 <span className="text-primary font-semibold">PT. Mitra Muratara Sejahtera</span>. All rights reserved.
             </p>
 
             {/* Scroll to Top */}

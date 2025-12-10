@@ -31,7 +31,7 @@ const HeroSection = () => {
           </div>
 
           <h1 className="animate-fade-up animate-fade-up-delay-1 text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-primary-foreground mb-6 leading-tight">
-            PT. Mitra Mutiara
+            PT. Mitra Muratara
             <span className="block text-secondary">Sejahtera</span>
           </h1>
 
