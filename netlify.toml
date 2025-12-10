@@ -1,6 +1,6 @@
 [build]
   base = "/"                  # Gunakan root folder (folder tempat netlify.toml berada)
-  publish = "PT_MMS/dist"     # Folder hasil build dari Vite (output folder)
+  publish = "/dist"     # Folder hasil build dari Vite (output folder)
   command = "npm run build"   # Perintah build untuk Vite
 
 [[redirects]]
