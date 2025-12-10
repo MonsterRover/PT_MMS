@@ -23,7 +23,7 @@ const Header = () => {
     { href: isHomePage ? "#visi-misi" : "/#visi-misi", label: "Visi & Misi", isAnchor: isHomePage },
     { href: isHomePage ? "#values" : "/#values", label: "Nilai", isAnchor: isHomePage },
     { href: "/news", label: "Berita", isAnchor: false },
-    { href: isHomePage ? "#contact" : "/#contact", label: "Kontak", isAnchor: isHomePage },
+    { href: "/contact", label: "Karir", isAnchor: false },
   ];
 
   return (

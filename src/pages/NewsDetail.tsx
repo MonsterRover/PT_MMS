@@ -226,7 +226,7 @@ const NewsDetail = () => {
             <Separator className="my-10" />
 
             {/* Comment Section */}
-            <CommentSection articleId={article.id} articleTitle={article.title} />
+            <CommentSection newsId={article.id} articleTitle={article.title} />
           </div>
         </div>
       </section>

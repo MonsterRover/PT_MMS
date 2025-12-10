@@ -1,145 +1,91 @@
-import { useState } from "react";
-import { User, ThumbsUp, MessageCircle, Send } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, MessageCircle, Send, Loader2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 
 interface Comment {
   id: string;
-  name: string;
+  author_name: string;
   content: string;
-  date: string;
-  likes: number;
-  replies: Reply[];
-}
-
-interface Reply {
-  id: string;
-  name: string;
-  content: string;
-  date: string;
+  created_at: string;
+  is_approved: boolean;
 }
 
 interface CommentSectionProps {
-  articleId: string;
+  newsId: string;
   articleTitle: string;
 }
 
-// Dummy comments data
-const dummyComments: Comment[] = [
-  {
-    id: "1",
-    name: "Ahmad Surya",
-    content: "Sangat bangga dengan pencapaian PT. Mitra Mutiara Sejahtera! Semoga terus berkontribusi untuk pembangunan berkelanjutan di Indonesia.",
-    date: "2 hari lalu",
-    likes: 12,
-    replies: [
-      {
-        id: "1-1",
-        name: "Dewi Lestari",
-        content: "Setuju! Ini menunjukkan komitmen perusahaan terhadap lingkungan.",
-        date: "1 hari lalu",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Budi Santoso",
-    content: "Artikel yang sangat informatif. Saya tertarik dengan program kemitraan yang disebutkan. Bagaimana cara bergabung sebagai petani mitra?",
-    date: "3 hari lalu",
-    likes: 8,
-    replies: [],
-  },
-  {
-    id: "3",
-    name: "Siti Rahayu",
-    content: "Senang melihat perusahaan yang peduli dengan masyarakat sekitar. Program CSR pendidikan sangat membantu anak-anak di desa kami.",
-    date: "5 hari lalu",
-    likes: 15,
-    replies: [
-      {
-        id: "3-1",
-        name: "Hendra Wijaya",
-        content: "Benar sekali! Anak saya juga mendapat beasiswa dari program ini.",
-        date: "4 hari lalu",
-      },
-      {
-        id: "3-2",
-        name: "Admin MMS",
-        content: "Terima kasih atas apresiasi dan partisipasinya. Kami berkomitmen untuk terus mendukung pendidikan di wilayah operasional.",
-        date: "3 hari lalu",
-      },
-    ],
-  },
-];
+const commentSchema = z.object({
+  name: z.string().trim().min(2, { message: 'Nama minimal 2 karakter' }).max(100),
+  content: z.string().trim().min(10, { message: 'Komentar minimal 10 karakter' }).max(1000),
+});
 
-const CommentSection = ({ articleId, articleTitle }: CommentSectionProps) => {
-  const [comments, setComments] = useState<Comment[]>(dummyComments);
+const CommentSection = ({ newsId, articleTitle }: CommentSectionProps) => {
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [commenterName, setCommenterName] = useState("");
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyContent, setReplyContent] = useState("");
-  const [replyName, setReplyName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
-  const handleSubmitComment = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchComments();
+  }, [newsId]);
+
+  const fetchComments = async () => {
+    setIsLoading(true);
+    
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('news_id', newsId)
+      .eq('is_approved', true)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setComments(data);
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !commenterName.trim()) {
-      toast.error("Silakan isi nama dan komentar Anda");
+    
+    const validation = commentSchema.safeParse({ name: commenterName, content: newComment });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
       return;
     }
 
-    const newCommentObj: Comment = {
-      id: Date.now().toString(),
-      name: commenterName,
-      content: newComment,
-      date: "Baru saja",
-      likes: 0,
-      replies: [],
-    };
+    setIsSubmitting(true);
 
-    setComments([newCommentObj, ...comments]);
+    const { error } = await supabase
+      .from('comments')
+      .insert({
+        news_id: newsId,
+        author_name: commenterName.trim(),
+        content: newComment.trim(),
+        is_approved: false,
+      });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      toast.error('Gagal mengirim komentar. Silakan coba lagi.');
+      return;
+    }
+
     setNewComment("");
     setCommenterName("");
-    toast.success("Komentar berhasil ditambahkan!");
-  };
-
-  const handleSubmitReply = (commentId: string) => {
-    if (!replyContent.trim() || !replyName.trim()) {
-      toast.error("Silakan isi nama dan balasan Anda");
-      return;
-    }
-
-    const newReply: Reply = {
-      id: Date.now().toString(),
-      name: replyName,
-      content: replyContent,
-      date: "Baru saja",
-    };
-
-    setComments(
-      comments.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, replies: [...comment.replies, newReply] }
-          : comment
-      )
-    );
-
-    setReplyingTo(null);
-    setReplyContent("");
-    setReplyName("");
-    toast.success("Balasan berhasil ditambahkan!");
-  };
-
-  const handleLike = (commentId: string) => {
-    setComments(
-      comments.map((comment) =>
-        comment.id === commentId
-          ? { ...comment, likes: comment.likes + 1 }
-          : comment
-      )
-    );
+    setPendingCount(prev => prev + 1);
+    toast.success('Komentar berhasil dikirim! Menunggu persetujuan admin.');
   };
 
   const getInitials = (name: string) => {
@@ -149,6 +95,23 @@ const CommentSection = ({ articleId, articleTitle }: CommentSectionProps) => {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return 'Hari ini';
+    if (days === 1) return '1 hari lalu';
+    if (days < 7) return `${days} hari lalu`;
+    
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -168,6 +131,7 @@ const CommentSection = ({ articleId, articleTitle }: CommentSectionProps) => {
           value={commenterName}
           onChange={(e) => setCommenterName(e.target.value)}
           className="bg-background"
+          maxLength={100}
         />
         <Textarea
           placeholder="Tulis komentar Anda..."
@@ -175,112 +139,65 @@ const CommentSection = ({ articleId, articleTitle }: CommentSectionProps) => {
           onChange={(e) => setNewComment(e.target.value)}
           rows={4}
           className="bg-background resize-none"
+          maxLength={1000}
         />
-        <Button type="submit" className="bg-primary hover:bg-primary/90">
-          <Send className="h-4 w-4 mr-2" />
-          Kirim Komentar
-        </Button>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            Komentar akan ditampilkan setelah disetujui admin
+          </p>
+          <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Send className="h-4 w-4 mr-2" />
+            )}
+            Kirim Komentar
+          </Button>
+        </div>
       </form>
 
+      {/* Pending notification */}
+      {pendingCount > 0 && (
+        <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-4 text-center">
+          <p className="text-sm text-foreground">
+            {pendingCount} komentar Anda sedang menunggu persetujuan admin.
+          </p>
+        </div>
+      )}
+
       {/* Comments List */}
-      <div className="space-y-6">
-        {comments.map((comment) => (
-          <div key={comment.id} className="space-y-4">
-            {/* Main Comment */}
-            <div className="bg-card border border-border rounded-xl p-6">
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : comments.length === 0 ? (
+        <div className="text-center py-8">
+          <MessageCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+          <p className="text-muted-foreground">Belum ada komentar. Jadilah yang pertama!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="bg-card border border-border rounded-xl p-6">
               <div className="flex gap-4">
                 <Avatar className="h-12 w-12">
                   <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                    {getInitials(comment.name)}
+                    {getInitials(comment.author_name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-semibold text-foreground">{comment.name}</span>
-                    <span className="text-sm text-muted-foreground">• {comment.date}</span>
+                    <span className="font-semibold text-foreground">{comment.author_name}</span>
+                    <span className="text-sm text-muted-foreground">• {formatDate(comment.created_at)}</span>
                   </div>
-                  <p className="text-foreground/80 mb-4">{comment.content}</p>
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => handleLike(comment.id)}
-                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      <ThumbsUp className="h-4 w-4" />
-                      <span>{comment.likes}</span>
-                    </button>
-                    <button
-                      onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      <span>Balas</span>
-                    </button>
-                  </div>
+                  <p className="text-foreground/80">{comment.content}</p>
                 </div>
               </div>
-
-              {/* Reply Form */}
-              {replyingTo === comment.id && (
-                <div className="mt-4 ml-16 space-y-3">
-                  <Input
-                    placeholder="Nama Anda"
-                    value={replyName}
-                    onChange={(e) => setReplyName(e.target.value)}
-                    className="bg-muted/30"
-                  />
-                  <div className="flex gap-2">
-                    <Textarea
-                      placeholder="Tulis balasan..."
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      rows={2}
-                      className="flex-1 bg-muted/30 resize-none"
-                    />
-                    <Button
-                      onClick={() => handleSubmitReply(comment.id)}
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
-
-            {/* Replies */}
-            {comment.replies.length > 0 && (
-              <div className="ml-8 space-y-3">
-                {comment.replies.map((reply) => (
-                  <div
-                    key={reply.id}
-                    className="bg-muted/30 border border-border/50 rounded-xl p-4"
-                  >
-                    <div className="flex gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-secondary/20 text-secondary-foreground text-sm font-semibold">
-                          {getInitials(reply.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-foreground text-sm">
-                            {reply.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            • {reply.date}
-                          </span>
-                        </div>
-                        <p className="text-foreground/80 text-sm">{reply.content}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
