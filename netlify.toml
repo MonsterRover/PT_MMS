@@ -1,10 +1,10 @@
 [build]
-  base = "PT_MMS"               
-  publish = "PT_MMS"             
-  command = "npm run build" 
+  base = "PT_MMS"                # Folder tempat menjalankan build command
+  publish = "PT_MMS/dist"         # Folder hasil build dari Vite (output folder)
+  command = "npm run build"       # Perintah build untuk Vite
 
 [[redirects]]
-  from = "/"
-  to = "/PT_MMS/index.html"
+  from = "/"                      # Redirect dari root (/) ke index.html
+  to = "/PT_MMS/index.html"       # Arahkan ke index.html yang ada di PT_MMS
   status = 200
   force = true
